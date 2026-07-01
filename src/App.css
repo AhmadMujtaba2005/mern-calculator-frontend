@@ -254,3 +254,34 @@ body {
 .clear-history-btn:hover {
   background: rgba(239, 68, 68, 0.25);
 }
+
+/* Per-item delete button */
+.history-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-item .hist-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.delete-item-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.delete-item-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+}

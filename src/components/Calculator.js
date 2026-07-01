@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Display from './Display';
 import Button from './Button';
 import History from './History';
+import { getHistory, saveCalculation, deleteCalculation } from '../services/api';
 
 const buttons = [
     { value: 'C', className: 'clear wide' },
@@ -28,36 +29,43 @@ const Calculator = () => {
     const [expression, setExpression] = useState('');
     const [result, setResult] = useState('');
     const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleButtonClick = (value) => {
+    // Fetch history from backend on mount
+    useEffect(() => {
+        const fetchHistory = async () => {
+            try {
+                const data = await getHistory();
+                setHistory(data);
+            } catch (err) {
+                console.error("Failed to load history:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchHistory();
+    }, []);
+
+    const handleButtonClick = async (value) => {
         if (value === 'C') {
             setExpression('');
             setResult('');
             return;
         }
 
-
-        if (value === '%') {
-            if (expression) {
-                try {
-                    const val = eval(expression) / 100;
-                    setExpression(String(val));
-                    setResult('');
-                } catch {
-                    setResult('Error');
-                }
-            }
-            return;
-        }
+        // % acts as percentage-of: A%B → A*B/100
+        // e.g. 15%20 → (15*20/100) = 3
 
         if (value === '=') {
             try {
-                const answer = eval(expression);
+                const [val, total] = expression.split('%');
+                const processed = total ? `${val}*${total}/100` : expression;
+                const answer = eval(processed);
                 const formatted = parseFloat(answer.toFixed(10));
-                setHistory((prev) => [
-                    ...prev,
-                    { expression, result: String(formatted) },
-                ]);
+
+                // Save to backend and get the saved item (with _id)
+                const saved = await saveCalculation(expression, String(formatted));
+                setHistory((prev) => [saved, ...prev]);
                 setResult(String(formatted));
                 setExpression('');
             } catch {
@@ -66,8 +74,8 @@ const Calculator = () => {
             return;
         }
 
-        // Prevent double operators
-        const operators = ['+', '-', '*', '/'];
+        // Prevent double operators (including %)
+        const operators = ['+', '-', '*', '/', '%'];
         const lastChar = expression.slice(-1);
         if (operators.includes(value) && operators.includes(lastChar)) {
             setExpression((prev) => prev.slice(0, -1) + value);
@@ -79,11 +87,29 @@ const Calculator = () => {
     };
 
     const handleHistorySelect = (item) => {
-        setExpression(item.expression);
+        setExpression(item.equation);
         setResult(item.result);
     };
 
-    const handleClearHistory = () => setHistory([]);
+    // Delete a single history item
+    const handleDeleteItem = async (id) => {
+        try {
+            await deleteCalculation(id);
+            setHistory((prev) => prev.filter((item) => item._id !== id));
+        } catch (err) {
+            console.error("Failed to delete item:", err);
+        }
+    };
+
+    // Delete all: soft-delete each item via API
+    const handleClearHistory = async () => {
+        try {
+            await Promise.all(history.map((item) => deleteCalculation(item._id)));
+            setHistory([]);
+        } catch (err) {
+            console.error("Failed to clear history:", err);
+        }
+    };
 
     return (
         <div className="app-wrapper">
@@ -103,7 +129,9 @@ const Calculator = () => {
 
             <History
                 history={history}
+                loading={loading}
                 onSelect={handleHistorySelect}
+                onDelete={handleDeleteItem}
                 onClear={handleClearHistory}
             />
         </div>

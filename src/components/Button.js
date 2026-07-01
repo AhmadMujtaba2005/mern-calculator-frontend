@@ -6,4 +6,5 @@ const Button = ({ value, onClick, className }) => {
     );
 };
 
+
 export default Button;
