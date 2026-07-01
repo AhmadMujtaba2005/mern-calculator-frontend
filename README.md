@@ -2,58 +2,67 @@
 
 ## Overview
 
-This repository contains the frontend of the MERN Calculator application built using **React** and **Vite**.
+This repository contains the frontend of a MERN Stack Calculator application developed using **React** and **Vite**.
 
-The application provides an interactive calculator interface capable of performing arithmetic operations and displaying calculation history.
+The application provides a clean and responsive calculator interface capable of performing arithmetic operations while communicating with the backend through the **Fetch API** to store and retrieve calculation history.
 
 ---
 
 ## Features
 
-* Interactive calculator interface
-* Addition, subtraction, multiplication, and division
+* Responsive calculator interface
+* Perform basic arithmetic operations
 * Percentage operation
 * Modulus operation
-* Clear and delete functionality
-* Calculation history display
-* Responsive user interface
+* Display calculation history
+* Fetch calculation history from backend
+* Save calculations using Fetch API
+* Delete calculations (soft delete)
+* Filter history by calculation date
+* Component-based React architecture
 
 ---
 
-## Technologies Used
+## Tech Stack
 
 * React
 * Vite
 * JavaScript
 * CSS
+* Fetch API
 
 ---
 
 ## Supported Operations
 
-* Addition (`+`)
-* Subtraction (`-`)
-* Multiplication (`*`)
-* Division (`/`)
-* Percentage (`%`)
-* Modulus (`Mod`)
+* Addition (+)
+* Subtraction (-)
+* Multiplication (*)
+* Division (/)
+* Percentage (%)
+* Modulus (Mod)
 
 ---
 
-## Project Structure
+## Folder Structure
 
 ```text
 frontend/
 │
 ├── src/
 │   ├── components/
+│   │   ├── Calculator.jsx
+│   │   ├── Button.jsx
+│   │   ├── Display.jsx
+│   │   └── History.jsx
+│   │
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
 │
 ├── public/
-├── index.html
 ├── package.json
+├── vite.config.js
 └── README.md
 ```
 
@@ -61,26 +70,26 @@ frontend/
 
 ## Installation
 
-### Clone the repository
+### Clone Repository
 
 ```bash
 git clone <repository-url>
 cd frontend
 ```
 
-### Install dependencies
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Start the development server
+### Run Development Server
 
 ```bash
 npm run dev
 ```
 
-Application will run on:
+The frontend runs at:
 
 ```text
 http://localhost:3000
@@ -88,13 +97,26 @@ http://localhost:3000
 
 ---
 
-## Future Enhancements
+## Backend Connection
 
-* Backend integration with MongoDB
-* Persistent calculation history
-* Date-based history filtering
-* Soft delete support
-* Advanced scientific calculations
+The frontend communicates with the backend using the native **Fetch API**.
+
+Example backend URL:
+
+```text
+http://localhost:5000/api/history
+```
+
+---
+
+## Future Improvements
+
+* Scientific calculator functions
+* Dark mode
+* Keyboard input support
+* Calculation statistics
+* Export history
+* User authentication
 
 ---
 
