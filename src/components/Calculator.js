@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Display from './Display';
 import Button from './Button';
 import History from './History';
-import { getHistory, saveCalculation, deleteCalculation } from '../services/api';
+import { getHistory, saveCalculation, deleteCalculation, filterHistoryByDay } from '../services/api';
 
 const buttons = [
     { value: 'C', className: 'clear wide' },
@@ -28,15 +28,35 @@ const buttons = [
 const Calculator = () => {
     const [expression, setExpression] = useState('');
     const [result, setResult] = useState('');
-    const [history, setHistory] = useState([]);
+    const [history, setHistory] = useState([]);          // full list 
+    const [filteredHistory, setFilteredHistory] = useState([]); // what the panel shows
     const [loading, setLoading] = useState(true);
+    const [isFiltered, setIsFiltered] = useState(false);
 
-    // Fetch history from backend on mount
+    // Filter history 
+    const filterHistory = async () => {
+        try {
+            const recentCalculations = await filterHistoryByDay();
+            setFilteredHistory(recentCalculations);
+            setIsFiltered(true);
+        } catch (err) {
+            console.error("Failed to fetch filtered history:", err);
+        }
+    };
+
+    // Reset the filter
+    const resetFilter = () => {
+        setFilteredHistory(history);
+        setIsFiltered(false);
+    };
+
+    // Fetch history from backend
     useEffect(() => {
         const fetchHistory = async () => {
             try {
                 const data = await getHistory();
                 setHistory(data);
+                setFilteredHistory(data);
             } catch (err) {
                 console.error("Failed to load history:", err);
             } finally {
@@ -53,20 +73,28 @@ const Calculator = () => {
             return;
         }
 
-        // % acts as percentage-of: A%B → A*B/100
-        // e.g. 15%20 → (15*20/100) = 3
-
         if (value === '=') {
             try {
-                const [val, total] = expression.split('%');
-                const processed = total ? `${val}*${total}/100` : expression;
-                const answer = eval(processed);
-                const formatted = parseFloat(answer.toFixed(10));
+                // Supported operators: + - * / %
+                const match = expression.match(/^(-?[\d.]+)([+\-*/%])(-?[\d.]+)$/);
+                if (!match) {
+                    setResult('Error');
+                    return;
+                }
 
-                // Save to backend and get the saved item (with _id)
-                const saved = await saveCalculation(expression, String(formatted));
+                const number1 = match[1];
+                const operationType = match[2];
+                const number2 = match[3];
+
+                // Send to backend
+                const saved = await saveCalculation(number1, operationType, number2);
+
+                // save result to backend
                 setHistory((prev) => [saved, ...prev]);
-                setResult(String(formatted));
+                if (!isFiltered) {
+                    setFilteredHistory((prev) => [saved, ...prev]);
+                }
+                setResult(saved.result);
                 setExpression('');
             } catch {
                 setResult('Error');
@@ -74,7 +102,7 @@ const Calculator = () => {
             return;
         }
 
-        // Prevent double operators (including %)
+        // Prevent double operators
         const operators = ['+', '-', '*', '/', '%'];
         const lastChar = expression.slice(-1);
         if (operators.includes(value) && operators.includes(lastChar)) {
@@ -87,25 +115,28 @@ const Calculator = () => {
     };
 
     const handleHistorySelect = (item) => {
-        setExpression(item.equation);
+        setExpression(`${item.number1}${item.operationType}${item.number2}`);
         setResult(item.result);
     };
 
-    // Delete a single history item
+    // Delete history acc to ID
     const handleDeleteItem = async (id) => {
         try {
             await deleteCalculation(id);
             setHistory((prev) => prev.filter((item) => item._id !== id));
+            setFilteredHistory((prev) => prev.filter((item) => item._id !== id));
         } catch (err) {
             console.error("Failed to delete item:", err);
         }
     };
 
-    // Delete all: soft-delete each item via API
+    // Delete all
     const handleClearHistory = async () => {
         try {
             await Promise.all(history.map((item) => deleteCalculation(item._id)));
             setHistory([]);
+            setFilteredHistory([]);
+            setIsFiltered(false);
         } catch (err) {
             console.error("Failed to clear history:", err);
         }
@@ -113,6 +144,7 @@ const Calculator = () => {
 
     return (
         <div className="app-wrapper">
+
             <div className="calculator-container">
                 <Display expression={expression} result={result} />
                 <div className="button-grid">
@@ -126,13 +158,15 @@ const Calculator = () => {
                     ))}
                 </div>
             </div>
-
             <History
-                history={history}
+                history={filteredHistory}
                 loading={loading}
                 onSelect={handleHistorySelect}
                 onDelete={handleDeleteItem}
                 onClear={handleClearHistory}
+                filterHistory={filterHistory}
+                resetFilter={resetFilter}
+                isFiltered={isFiltered}
             />
         </div>
     );

@@ -1,7 +1,23 @@
-const History = ({ history, loading, onSelect, onDelete, onClear }) => {
+const History = ({ history, loading, onSelect, onDelete, onClear, filterHistory, resetFilter, isFiltered }) => {
+
     return (
         <div className="history-panel">
             <h3>History</h3>
+            <div className="filter-container">
+                <button onClick={filterHistory} className="day-btn">Last 1 Day</button>
+                {isFiltered && (
+                    <button onClick={resetFilter} className="reset-filter-btn">Show All</button>
+                )}
+            </div>
+
+            <div className="hist-table-header">
+                <span>Number 1</span>
+                <span>Operation</span>
+                <span>Number 2</span>
+                <span>Result</span>
+                <span>Calculated On</span>
+                <span></span>
+            </div>
             <div className="history-list">
                 {loading ? (
                     <p className="history-empty">Loading history...</p>
@@ -14,11 +30,11 @@ const History = ({ history, loading, onSelect, onDelete, onClear }) => {
                             className="history-item"
                             onClick={() => onSelect(item)}
                         >
-                            <div className="hist-content">
-                                <div className="hist-expr">{item.equation}</div>
-                                <div className="hist-result">= {item.result}</div>
-                                <div className="hist-date">{item.createdAt}</div>
-                            </div>
+                            <span className="hist-num1">{item.number1}</span>
+                            <span className="hist-op">{item.operationType}</span>
+                            <span className="hist-num2">{item.number2}</span>
+                            <span className="hist-result">{item.result}</span>
+                            <span className="hist-date">{item.createdAt}</span>
                             <button
                                 className="delete-item-btn"
                                 onClick={(e) => {

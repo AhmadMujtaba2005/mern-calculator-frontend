@@ -159,7 +159,7 @@ body {
 
 /* ── HISTORY PANEL ── */
 .history-panel {
-  width: 260px;
+  width: 600px;
   background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -188,17 +188,19 @@ body {
   flex-direction: column;
   gap: 8px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.15) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
 .history-list::-webkit-scrollbar {
   width: 4px;
 }
+
 .history-list::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .history-list::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
 }
 
@@ -216,17 +218,109 @@ body {
   border-color: rgba(168, 85, 247, 0.4);
 }
 
-.history-item .hist-expr {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
-  margin-bottom: 3px;
-  word-break: break-all;
+/* ── HISTORY TABLE LAYOUT ── */
+/* Both the header row and every data row use the SAME grid template   */
+
+.hist-table-header,
+.history-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 2fr 28px;
+  align-items: center;
+  gap: 6px;
 }
 
-.history-item .hist-result {
-  font-size: 18px;
+/* Sticky header row just above the scrollable list */
+.hist-table-header {
+  padding: 0 14px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 6px;
+}
+
+.hist-table-header span {
+  font-size: 10px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Data cells inside each row */
+.history-item .hist-num1,
+.history-item .hist-num2,
+.history-item .hist-result {
+  font-size: 14px;
+  font-weight: 500;
   color: #fff;
+  justify-content: start;
+  align-items: start;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-panel .filter-container {
+  display: flex;
+  justify-content: start;
+  padding-left: 20px;
+  padding-bottom: 20px;
+}
+
+.history-panel .day-btn {
+  margin-right: 10px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: lightgray;
+  background: lightgray;
+  border: 1px solid grey;
+  border-radius: 10px;
+  color: grey;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: lightgrey 0.2s ease;
+}
+
+.history-panel .reset-filter-btn {
+  padding: 4px 8px;
+  font-size: 10px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: lightgray;
+  background: lightgray;
+  border: 1px solid grey;
+  border-radius: 10px;
+  color: grey;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: lightgrey 0.2s ease;
+}
+
+.history-item .hist-op {
+  font-size: 16px;
+  font-weight: 700;
+  color: #a855f7;
+}
+
+.history-item .hist-date {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .history-empty {
@@ -255,18 +349,6 @@ body {
   background: rgba(239, 68, 68, 0.25);
 }
 
-/* Per-item delete button */
-.history-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.history-item .hist-content {
-  flex: 1;
-  min-width: 0;
-}
 
 .delete-item-btn {
   flex-shrink: 0;
